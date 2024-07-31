@@ -69,6 +69,7 @@ def log_new_request(request: Request, **kwargs):
             "event": "new_request",
             "method": request.method,
             "url": request.url.path,
+            "referer": request.headers.get("referer"),
             "ip": request.client.host if request.client else None,
             "user_agent": request.headers.get("user-agent"),
             **kwargs,
@@ -127,6 +128,7 @@ def get_image(request: Request, image_name: str):
         log_new_request(request, image_name=image_name)
         file = find_file_with_any_extension("static", image_name)
         if not file:
+            logger.warning({"event": "image_not_found", "image_name": image_name})
             raise HTTPException(status_code=404, detail="Image not found")
         return FileResponse(file)
     except Exception as e:
