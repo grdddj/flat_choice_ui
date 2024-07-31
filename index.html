@@ -189,6 +189,8 @@
           currentIndex: 0,
           comment: "",
           flats: [],
+          touchStartX: 0,
+          touchEndX: 0,
         },
         methods: {
           nextFlat() {
@@ -202,6 +204,19 @@
             if (event.key === "ArrowRight") {
               this.nextFlat();
             } else if (event.key === "ArrowLeft") {
+              this.prevFlat();
+            }
+          },
+          handleTouchStart(event) {
+            this.touchStartX = event.changedTouches[0].screenX;
+          },
+          handleTouchMove(event) {
+            this.touchEndX = event.changedTouches[0].screenX;
+          },
+          handleTouchEnd() {
+            if (this.touchEndX < this.touchStartX) {
+              this.nextFlat();
+            } else if (this.touchEndX > this.touchStartX) {
               this.prevFlat();
             }
           },
@@ -255,11 +270,35 @@
           },
         },
         mounted() {
-          window.addEventListener("keydown", this.handleKeydown);
           this.getFlats();
+          window.addEventListener("keydown", this.handleKeydown);
+          const carouselElement = document.querySelector("#imageCarousel");
+          if (carouselElement) {
+            carouselElement.addEventListener(
+              "touchstart",
+              this.handleTouchStart
+            );
+            carouselElement.addEventListener("touchmove", this.handleTouchMove);
+            carouselElement.addEventListener("touchend", this.handleTouchEnd);
+          }
         },
         beforeDestroy() {
           window.removeEventListener("keydown", this.handleKeydown);
+          const carouselElement = document.querySelector("#imageCarousel");
+          if (carouselElement) {
+            carouselElement.removeEventListener(
+              "touchstart",
+              this.handleTouchStart
+            );
+            carouselElement.removeEventListener(
+              "touchmove",
+              this.handleTouchMove
+            );
+            carouselElement.removeEventListener(
+              "touchend",
+              this.handleTouchEnd
+            );
+          }
         },
       });
     </script>
