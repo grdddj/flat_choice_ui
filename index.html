@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vyber si byt</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .carousel-caption {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .carousel-control-prev,
+      .carousel-control-next {
+        color: #007bff;
+      }
+      .carousel-control-prev-icon,
+      .carousel-control-next-icon {
+        background-color: #007bff;
+        border-radius: 50%;
+      }
+      .carousel {
+        position: relative;
+      }
+      .carousel-control-prev-icon,
+      .carousel-control-next-icon {
+        background-color: #007bff;
+        border-radius: 50%;
+        width: 5rem;
+        height: 5rem;
+        background-size: 100%, 100%;
+      }
+      .carousel-control-prev {
+        left: -15%;
+      }
+      .carousel-control-next {
+        right: -15%;
+      }
+      .carousel-caption {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        max-width: 80%;
+        margin: 0 auto;
+      }
+      carousel-indicators li {
+        background-color: red;
+      }
+      .carousel-indicators .active {
+        background-color: rgb(226, 30, 30);
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      .comment-form {
+        margin-top: 15px;
+        text-align: center;
+      }
+      .comment-form textarea {
+        width: 100%;
+        max-width: 600px;
+        height: 100px;
+        margin-bottom: 10px;
+      }
+      .comment-form button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container mt-5">
+      <h1 class="center">Výběr bytu</h1>
+      <br />
+
+      <div
+        id="imageCarousel"
+        class="carousel slide"
+        data-ride="carousel"
+        data-interval="false"
+      >
+        <ol class="carousel-indicators">
+          <li
+            v-for="(slide, index) in flats"
+            :key="index"
+            :data-target="'#imageCarousel'"
+            :data-slide-to="index"
+            :class="{ active: index === currentIndex  }"
+          ></li>
+        </ol>
+        <div class="carousel-inner">
+          <div
+            v-for="(flat, index) in flats"
+            :key="index"
+            :class="['carousel-item', { active: index === currentIndex  }]"
+          >
+            <img
+              :src="getFlatSrc(flat)"
+              class="d-block w-100"
+              :alt="'Slide ' + (index + 1)"
+            />
+            <div class="carousel-caption d-none d-md-block"></div>
+          </div>
+        </div>
+        <a
+          class="carousel-control-prev"
+          href="#imageCarousel"
+          role="button"
+          @click="prevFlat"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a
+          class="carousel-control-next"
+          href="#imageCarousel"
+          role="button"
+          @click="nextFlat"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+
+      <hr />
+      <br />
+
+      <div>
+        <h2 class="center">Detaily</h2>
+        <ul>
+          <li>
+            Zařízeno: <span v-if="getFlatInfoLocally().furnished">ANO</span
+            ><span v-else>NE</span>
+          </li>
+        </ul>
+      </div>
+
+      <hr />
+      <br />
+
+      <div>
+        <h2 class="center">Komentáře</h2>
+        <ul>
+          <li v-for="comment in getCommentsLocally()">
+            {{ comment.date }} - {{ comment.comment }}
+          </li>
+        </ul>
+      </div>
+
+      <hr />
+      <br />
+
+      <div class="comment-form">
+        <textarea v-model="comment" placeholder="Přidat komentář..."></textarea>
+        <button @click="submitComment()">Odeslat</button>
+      </div>
+
+      <hr />
+      <br />
+
+      <div>
+        <h2 class="center">Fotky</h2>
+        <div class="row">
+          <div class="col-12" v-for="(photo, index) in getFlatExtraPhotoSources()">
+            <img
+              :src="photo"
+              class="img-fluid"
+              :alt="'Extra photo ' + (index + 1)"
+            />
+          </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script>
+      const API_URL = "http://localhost:8000";
+      new Vue({
+        el: "#app",
+        data: {
+          currentIndex: 0,
+          comment: "",
+          flats: [],
+        },
+        methods: {
+          nextFlat() {
+            this.currentIndex = (this.currentIndex + 1) % this.flats.length;
+          },
+          prevFlat() {
+            this.currentIndex =
+              (this.currentIndex - 1 + this.flats.length) % this.flats.length;
+          },
+          handleKeydown(event) {
+            if (event.key === "ArrowRight") {
+              this.nextFlat();
+            } else if (event.key === "ArrowLeft") {
+              this.prevFlat();
+            }
+          },
+          getCurrentId() {
+            return this.flats[this.currentIndex].id;
+          },
+          async getFlats() {
+            const response = await fetch(`${API_URL}/flats`);
+            this.flats = await response.json();
+          },
+          getFlatSrc(flat) {
+            return `${API_URL}/images/${flat.id}`;
+          },
+          submitComment() {
+            if (!this.comment) {
+              return;
+            }
+            const id = this.getCurrentId();
+            this.flats[this.currentIndex].comments.push({
+              comment: this.comment,
+              date: new Date().toISOString(),
+            });
+            fetch(`${API_URL}/comment/${id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ comment: this.comment }),
+            });
+            this.comment = "";
+          },
+          getCommentsLocally() {
+            if (this.flats.length === 0) {
+              return [];
+            }
+            return this.flats[this.currentIndex].comments;
+          },
+          getFlatInfoLocally() {
+            if (this.flats.length === 0) {
+              return {};
+            }
+            return this.flats[this.currentIndex].info;
+          },
+          getFlatExtraPhotoSources() {
+            if (this.flats.length === 0) {
+              return [];
+            }
+            return this.flats[this.currentIndex].photos.map(
+              (photo) => `${API_URL}/images/${photo}`
+            );
+          },
+        },
+        mounted() {
+          window.addEventListener("keydown", this.handleKeydown);
+          this.getFlats();
+        },
+        beforeDestroy() {
+          window.removeEventListener("keydown", this.handleKeydown);
+        },
+      });
+    </script>
+  </body>
+</html>

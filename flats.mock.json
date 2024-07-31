@@ -1,0 +1,23 @@
+[
+  {
+    "id": "QA0802",
+    "comments": [
+      {
+        "comment": "Has a nice view",
+        "date": "2024-07-31 12:42:15"
+      }
+    ],
+    "photos": ["view_0802.jpg"],
+    "info": {
+      "furnished": true
+    }
+  },
+  {
+    "id": "QC0702",
+    "comments": [],
+    "photos": [],
+    "info": {
+      "furnished": true
+    }
+  }
+]

@@ -1,0 +1,5 @@
+__pycache__
+static
+*.json
+!flats.mock.json
+*.log
