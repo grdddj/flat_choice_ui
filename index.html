@@ -187,6 +187,7 @@
           flats: [],
           touchStartX: 0,
           touchEndX: 0,
+          isMobile: false,
         },
         methods: {
           nextFlat() {
@@ -217,6 +218,9 @@
             }
           },
           handleImageClick(event) {
+            if (this.isMobile) {
+              return;
+            }
             const imageWidth = event.currentTarget.offsetWidth;
             const clickX = event.offsetX;
             if (clickX > imageWidth / 2) {
@@ -273,8 +277,14 @@
               (photo) => `${API_URL}/images/${photo}`
             );
           },
+          checkIfMobile() {
+            this.isMobile =
+              /Mobi|Android/i.test(navigator.userAgent) ||
+              window.innerWidth <= 768;
+          },
         },
         mounted() {
+          this.checkIfMobile();
           this.getFlats();
           window.addEventListener("keydown", this.handleKeydown);
           const carouselElement = document.querySelector("#imageCarousel");
