@@ -91,6 +91,7 @@
         class="carousel slide"
         data-ride="carousel"
         data-interval="false"
+        @click="handleImageClick"
       >
         <ol class="carousel-indicators">
           <li
@@ -217,6 +218,15 @@
             if (this.touchEndX < this.touchStartX) {
               this.nextFlat();
             } else if (this.touchEndX > this.touchStartX) {
+              this.prevFlat();
+            }
+          },
+          handleImageClick(event) {
+            const imageWidth = event.currentTarget.offsetWidth;
+            const clickX = event.offsetX;
+            if (clickX > imageWidth / 2) {
+              this.nextFlat();
+            } else {
               this.prevFlat();
             }
           },
