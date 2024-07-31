@@ -96,7 +96,6 @@
           <li
             v-for="(slide, index) in flats"
             :key="index"
-            :data-target="'#imageCarousel'"
             :data-slide-to="index"
             :class="{ active: index === currentIndex  }"
           ></li>
@@ -117,7 +116,6 @@
         </div>
         <a
           class="carousel-control-prev"
-          href="#imageCarousel"
           role="button"
           @click="prevFlat"
         >
@@ -126,7 +124,6 @@
         </a>
         <a
           class="carousel-control-next"
-          href="#imageCarousel"
           role="button"
           @click="nextFlat"
         >
